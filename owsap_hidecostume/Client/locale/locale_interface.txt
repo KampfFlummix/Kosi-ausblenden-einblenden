@@ -1,0 +1,2 @@
+SHOW_COSTUME	Göster
+HIDE_COSTUME	Gizle
