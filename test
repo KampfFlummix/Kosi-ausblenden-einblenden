@@ -1,0 +1,203 @@
+--- a/owsap_hidecostume/constInfo.py
++++ b/owsap_hidecostume/constInfo.py
+@@ -0,0 +1,10 @@
++# -- coding: utf-8 --
++# owsap_hidecostume: Konstanten zur Steuerung der Kostüm-Sichtbarkeit
++"""
++HIDE_COSTUME: Wert, um ein Kostüm auszublenden (0).
++SHOW_COSTUME: Wert, um ein Kostüm anzuzeigen (1).
++"""
++HIDE_COSTUME = 0
++SHOW_COSTUME = 1
++
++# Slot-Typen (optional, je nach Bedarf)
++BODY_SLOT, HAIR_SLOT, ACCE_SLOT, WEAPON_SLOT = range(4)
+--- a/owsap_hidecostume/uiInventory.py
++++ b/owsap_hidecostume/uiInventory.py
+@@ -1,5 +1,8 @@
++from constInfo import HIDE_COSTUME, SHOW_COSTUME
++from constInfo import BODY_SLOT, HAIR_SLOT, ACCE_SLOT, WEAPON_SLOT
+import uiToolTip
+import uiScriptLocale
++import wndMgr
+import player
+import net
+import chat
+@@ -150,7 +153,9 @@ class InventoryWindow:
+self.imageButtonList = {}
+self.slotIndexDict = {}
+
+def RefreshVisibleCostume(self, slotType, showFlag):
+
+def RefreshVisibleCostume(self, slotType, showFlag):
+
+
+
+   # showFlag muss HIDE_COSTUME (0) oder SHOW_COSTUME (1) sein
+
+
+
+   # slotType entsprechend BODY_SLOT, HAIR_SLOT, ACCE_SLOT, WEAPON_SLOT
+   # Alte Logik:
+
+
+
+   # ...
+
+
+
+   # Hier aktualisieren wir das UI entsprechend:
+   if showFlag == HIDE_COSTUME:
+       # Blende Kostüm aus
+       self.slotImageDict[slotType].Hide()  # Beispielaufruf
+
+@@ -170,7 +175,7 @@ class InventoryWindow:
+self.slotImageDict[slotType].Show()  # Beispielaufruf
+
+     # danach evtl. weiteres Refresh z.B. Tooltips etc.
+
+-
+
+
+
+   # ... ggf. weitere UI-Anpassungen
+
+--- a/owsap_hidecostume/stringCommander.py
++++ b/owsap_hidecostume/stringCommander.py
+@@ -30,6 +30,11 @@ class StringCommander:
+# bereits vorhandene Registrierungen
+self.serverCommandDict = {}
+
+
+
+   # Neue Commands für Kostüm-Ein-/Ausblenden
+
+
+
+   self.RegisterServerCommand("SetBodyCostumeHidden", self.SetBodyCostumeHidden)
+
+
+
+   self.RegisterServerCommand("SetHairCostumeHidden", self.SetHairCostumeHidden)
+
+
+
+   self.RegisterServerCommand("SetAcceCostumeHidden", self.SetAcceCostumeHidden)
+
+
+
+   self.RegisterServerCommand("SetWeaponCostumeHidden", self.SetWeaponCostumeHidden)
+
+def RegisterServerCommand(self, name, handler):
+# Registriert einen Handler für eingehende Binary-Server-Commands
+@@ -60,6 +65,28 @@ class StringCommander:
+self.serverCommandDict[name] = handler
+
+Implementierung der neuen Methoden:
+
+def SetBodyCostumeHidden(self, showFlag):
+
+
+
+   from uiInventory import InventoryWindow
+
+
+
+   ui = InventoryWindow.GetInstance()
+
+
+
+   ui.RefreshVisibleCostume(BODY_SLOT, showFlag)
+
+
+
+def SetHairCostumeHidden(self, showFlag):
+
+
+
+   from uiInventory import InventoryWindow
+
+
+
+   ui = InventoryWindow.GetInstance()
+
+
+
+   ui.RefreshVisibleCostume(HAIR_SLOT, showFlag)
+
+
+
+def SetAcceCostumeHidden(self, showFlag):
+
+
+
+   from uiInventory import InventoryWindow
+
+
+
+   ui = InventoryWindow.GetInstance()
+
+
+
+   ui.RefreshVisibleCostume(ACCE_SLOT, showFlag)
+
+
+
+def SetWeaponCostumeHidden(self, showFlag):
+
+
+
+   from uiInventory import InventoryWindow
+
+
+
+   ui = InventoryWindow.GetInstance()
+
+
+
+   ui.RefreshVisibleCostume(WEAPON_SLOT, showFlag)
+
+
+
+
+
+übrige Methoden ...
+
+--- a/owsap_hidecostume/interfaceModule.py
++++ b/owsap_hidecostume/interfaceModule.py
+@@ -1820,7 +1820,12 @@ class InterfaceModule:
+def RefreshVisibleCostume(self, slotType, showFlag):
+# wird aufgerufen von game.py / stringCommander
+# slotType = BODY_SLOT, HAIR_SLOT etc.
+
+
+
+   wnd = uiInventory.InventoryWindow.GetInstance()
+
+
+
+   # Stelle sicher, dass das UI-Modul importiert ist
+
+
+
+   try:
+
+
+
+       from uiInventory import InventoryWindow
+
+
+
+       wnd = InventoryWindow.GetInstance()
+
+
+
+   except ImportError:
+
+
+
+       return
+   wnd.RefreshVisibleCostume(slotType, showFlag)
+
+andere Methoden ...
+
